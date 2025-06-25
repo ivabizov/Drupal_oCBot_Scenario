@@ -1,0 +1,158 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the oCBot Scenario module.
+ */
+
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\ocbot_scenario\Install\ContentTypeInstaller;
+use Drupal\ocbot_scenario\Install\FieldInstaller;
+use Drupal\ocbot_scenario\Install\ParagraphsInstaller;
+
+/**
+ * Implements hook_install().
+ */
+function ocbot_scenario_install() {
+  try {
+    // 1. Create content types
+    ContentTypeInstaller::install();
+    
+    // 2. Create paragraphs
+    ParagraphsInstaller::install();
+    
+    // 3. Add fields
+    FieldInstaller::install();
+    
+    // 4. Configure form and view displays
+    _ocbot_scenario_configure_displays();
+    
+    // 5. Import translations (optional, if needed)
+    _ocbot_scenario_import_translations();
+    
+    // 6. Ensure form displays are properly set up
+    FormDisplayInstaller::setupFormDisplay('ocbot_scenario');
+    
+    // 7. Clear all caches to apply changes
+    drupal_flush_all_caches();
+  } catch (\Exception $e) {
+    \Drupal::logger('ocbot_scenario')->error('Installation failed: @error', ['@error' => $e->getMessage()]);
+    throw $e;
+  }
+
+  // ... інші кроки ...
+  
+  \Drupal::logger('ocbot_scenario')->info('Configuring form display...');
+  FormDisplayInstaller::setupFormDisplay('ocbot_scenario');
+  
+  // Або для дебагу (тимчасово):
+  dump('FormDisplayInstaller executed');
+  drupal_flush_all_caches();
+
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function ocbot_scenario_uninstall() {
+  // Remove in reverse order
+  FieldInstaller::uninstall();
+  ParagraphsInstaller::uninstall();
+  ContentTypeInstaller::uninstall();
+}
+
+/**
+ * Imports module translations.
+ */
+function _ocbot_scenario_import_translations() {
+  if (\Drupal::moduleHandler()->moduleExists('locale')) {
+    $langcode = 'uk';
+    $file = \Drupal::service('extension.path.resolver')->getPath('module', 'ocbot_scenario') . "/translations/$langcode.po";
+    
+    if (file_exists($file)) {
+      \Drupal::service('locale.batch')->createBatch('ocbot_scenario', $file);
+    }
+  }
+}
+
+/**
+ * Configures form and view displays for content types.
+ */
+function _ocbot_scenario_configure_displays() {
+  // Configure form display
+  $form_display = EntityFormDisplay::load('node.ocbot_scenario.default');
+  if (!$form_display) {
+    $form_display = EntityFormDisplay::create([
+      'targetEntityType' => 'node',
+      'bundle' => 'ocbot_scenario',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+
+  // Configure view display
+  $view_display = EntityViewDisplay::load('node.ocbot_scenario.default');
+  if (!$view_display) {
+    $view_display = EntityViewDisplay::create([
+      'targetEntityType' => 'node',
+      'bundle' => 'ocbot_scenario',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+
+  // Отримуємо всі поля для цього типу контенту
+  $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', 'ocbot_scenario');
+  
+  foreach ($fields as $field_name => $field) {
+    // Активація всіх кастомних полів (крім стандартних)
+    if (strpos($field_name, 'field_') === 0) {
+      $form_display->setComponent($field_name, [
+        'type' => _ocbot_scenario_get_widget_type($field->getType()),
+        'weight' => _ocbot_scenario_get_field_weight($field_name),
+      ]);
+      
+      // Basic view display configuration
+      $view_display->setComponent($field_name, [
+        'label' => 'above',
+        'type' => 'string',
+      ]);
+    }
+  }
+
+  // Save configurations
+  $form_display->save();
+  $view_display->save();
+}
+
+/**
+ * Helper function to get widget type for field.
+ */
+function _ocbot_scenario_get_widget_type($field_type) {
+  $map = [
+    'text_long' => 'text_textarea',
+    'entity_reference' => 'entity_reference_autocomplete',
+    // Додайте інші типи за необхідності
+  ];
+  return $map[$field_type] ?? 'string_textfield';
+}
+
+/**
+ * Helper function to get field weight.
+ */
+function _ocbot_scenario_get_field_weight($field_name) {
+  $weights = [
+    'field_description' => 10,
+    'field_equipment' => 20,
+    // ...
+  ];
+  return $weights[$field_name] ?? 0;
+}
+
+/**
+ * Implements hook_update_N() for any future updates.
+ */
+function ocbot_scenario_update_8001() {
+  _ocbot_scenario_configure_displays();
+}

@@ -1,0 +1,10 @@
+/* Стилі для адмін-форми */
+.form-item-field-ocbot-scenario-description {
+  background: #f5f5f5;
+  padding: 15px;
+}
+
+/* Стилі для параграфів */
+.paragraph-type-top {
+  border: 1px solid #ddd;
+}

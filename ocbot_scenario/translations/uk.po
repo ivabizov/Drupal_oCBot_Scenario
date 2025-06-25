@@ -1,0 +1,10 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: oCBot Scenario\n"
+"Language: uk\n"
+
+msgid "Scenario"
+msgstr "Сценарій"
+
+msgid "Controller"
+msgstr "Контролер"

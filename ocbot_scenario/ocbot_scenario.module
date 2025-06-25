@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Основні хуки модуля.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_help().
+ */
+function ocbot_scenario_help($route_name, $route_match) {
+  if ($route_name == 'help.page.ocbot_scenario') {
+    return ['#markup' => '<p>' . t('Допомога з модулем oCBot Scenario') . '</p>'];
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function ocbot_scenario_theme() {
+  return [
+    'node__ocbot_scenario' => [
+      'template' => 'node--ocbot-scenario',
+      'base hook' => 'node',
+    ],
+  ];
+}

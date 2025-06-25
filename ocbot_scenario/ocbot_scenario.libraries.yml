@@ -1,0 +1,10 @@
+admin-styles:
+  css:
+    theme:
+      css/ocbot-admin.css: {}
+custom-scripts:
+  js:
+    js/ocbot-scripts.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal

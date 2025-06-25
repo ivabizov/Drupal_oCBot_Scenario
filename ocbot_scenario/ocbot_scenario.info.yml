@@ -1,0 +1,15 @@
+name: 'oCBot Scenario'
+type: module
+description: 'Управління сценаріями, контролерами та обладнанням oCBot'
+package: 'oCBot'
+core_version_requirement: ^10 || ^11
+libraries:
+  - ocbot_scenario/admin-styles
+dependencies:
+  - paragraphs
+  - entity_reference_revisions
+  - field
+  - node
+  - locale
+config_devel:
+  import: true
