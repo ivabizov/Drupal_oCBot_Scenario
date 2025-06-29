@@ -1,15 +1,43 @@
 name: 'oCBot Scenario'
 type: module
-description: 'Управління сценаріями, контролерами та обладнанням oCBot'
+description: 'Provides scenario for oCBot.'
 package: 'oCBot'
-core_version_requirement: ^10 || ^11
+core_version_requirement: ^8 || ^9 || ^10
+
 libraries:
   - ocbot_scenario/admin-styles
-dependencies:
-  - paragraphs
-  - entity_reference_revisions
-  - field
-  - node
-  - locale
+
 config_devel:
   import: true
+
+dependencies:
+  # Core dependencies
+  - drupal:content_moderation
+  - drupal:datetime
+  - drupal:field
+  - drupal:link
+  - drupal:node
+  - drupal:options
+  - drupal:text
+  - drupal:user
+  - drupal:workflows
+  - drupal:path
+  - drupal:views
+  - drupal:system
+  - drupal:menu_ui
+  - drupal:block
+  - drupal:telephone
+  - drupal:image
+  - drupal:file
+  - drupal:media
+  - drupal:media_library
+  - drupal:locale
+
+  # Contrib dependencies
+  - drupal:paragraphs
+  - drupal:token
+  - drupal:ctools
+  - drupal:views_bulk_operations
+  - drupal:webform
+  - drupal:webform_ui
+  - entity_reference_revisions:entity_reference_revisions
