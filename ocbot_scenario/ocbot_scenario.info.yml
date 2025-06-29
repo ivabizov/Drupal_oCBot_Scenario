@@ -8,7 +8,7 @@ libraries:
   - ocbot_scenario/admin-styles
 
 config_devel:
-  import: true
+  import: false
 
 dependencies:
   # Core dependencies
@@ -41,3 +41,11 @@ dependencies:
   - drupal:webform
   - drupal:webform_ui
   - entity_reference_revisions:entity_reference_revisions
+
+  # Існуючі залежності...
+  - field.field.node.ocbot_scenario.field_description
+  - field.field.node.ocbot_scenario.field_equipment
+  - field.field.node.ocbot_scenario.field_step
+  - field.field.node.ocbot_scenario.field_tags
+  - field.field.node.ocbot_scenario.field_image
+  - node.type.ocbot_scenario
