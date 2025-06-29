@@ -1,0 +1,16 @@
+{
+    "name": "drupal/ocbot_scenario",
+    "description": "Provides scenario for oCBot.",
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "drupal/paragraphs": "^1.12",
+        "drupal/entity_reference_revisions": "^1.9",
+        "drupal/webform": "^6.1",
+        "drupal/token": "^1.10",
+        "drupal/ctools": "^3.7",
+        "drupal/views_bulk_operations": "^4.2"
+    }
+}
