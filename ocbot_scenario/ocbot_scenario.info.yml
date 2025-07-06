@@ -3,15 +3,7 @@ type: module
 description: 'Provides scenario for oCBot.'
 package: 'oCBot'
 core_version_requirement: ^8 || ^9 || ^10
-
-libraries:
-  - ocbot_scenario/admin-styles
-
-config_devel:
-  import: false
-
 dependencies:
-  # Core dependencies
   - drupal:content_moderation
   - drupal:datetime
   - drupal:field
@@ -32,20 +24,10 @@ dependencies:
   - drupal:media
   - drupal:media_library
   - drupal:locale
-
-  # Contrib dependencies
-  - drupal:paragraphs
-  - drupal:token
-  - drupal:ctools
-  - drupal:views_bulk_operations
-  - drupal:webform
-  - drupal:webform_ui
+  - paragraphs:paragraphs
   - entity_reference_revisions:entity_reference_revisions
-
-  # Існуючі залежності...
-  - field.field.node.ocbot_scenario.field_description
-  - field.field.node.ocbot_scenario.field_equipment
-  - field.field.node.ocbot_scenario.field_step
-  - field.field.node.ocbot_scenario.field_tags
-  - field.field.node.ocbot_scenario.field_image
-  - node.type.ocbot_scenario
+  - token:token
+  - ctools:ctools
+  - views_bulk_operations:views_bulk_operations
+  - webform:webform
+  - webform:webform_ui
