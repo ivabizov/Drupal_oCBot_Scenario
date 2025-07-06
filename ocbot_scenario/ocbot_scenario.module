@@ -1,29 +1,15 @@
 <?php
-
 /**
  * @file
- * Основні хуки модуля.
+ * Main module file.
  */
 
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Implements hook_help().
+ * Implements hook_form_FORM_ID_alter().
  */
-function ocbot_scenario_help($route_name, $route_match) {
-  if ($route_name == 'help.page.ocbot_scenario') {
-    return ['#markup' => '<p>' . t('Допомога з модулем oCBot Scenario') . '</p>'];
-  }
-}
-
-/**
- * Implements hook_theme().
- */
-function ocbot_scenario_theme() {
-  return [
-    'node__ocbot_scenario' => [
-      'template' => 'node--ocbot-scenario',
-      'base hook' => 'node',
-    ],
-  ];
+function ocbot_scenario_form_node_scenario_form_alter(&$form, FormStateInterface $form_state) {
+  // Додаткові налаштування форми сценарію
+  $form['#attached']['library'][] = 'ocbot_scenario/scenario_admin';
 }

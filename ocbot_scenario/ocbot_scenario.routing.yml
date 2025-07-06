@@ -1,0 +1,7 @@
+ocbot_scenario.controller:
+  path: '/admin/scenario'
+  defaults:
+    _controller: '\Drupal\ocbot_scenario\Controller\ScenarioController::overview'
+    _title: 'Scenarios Overview'
+  requirements:
+    _permission: 'administer scenarios'

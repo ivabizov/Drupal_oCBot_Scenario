@@ -1,148 +1,65 @@
 <?php
+/**
+ * @file
+ * Install hooks for ocbot_scenario module.
+ */
 
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\field\Entity\FieldConfig;
-use Drupal\node\Entity\NodeType;
-use Drupal\paragraphs\Entity\ParagraphsType;
 
 /**
  * Implements hook_install().
  */
 function ocbot_scenario_install() {
-  // Create Node Type
-  if (!NodeType::load('ocbot_scenario')) {
-    $node_type = NodeType::create([
-      'type' => 'ocbot_scenario',
-      'name' => 'OCBot Scenario',
-      'description' => 'Scenario for oCBot system',
+  // Create scenario content type if not exists
+  if (!\Drupal::entityTypeManager()->getStorage('node_type')->load('scenario')) {
+    $type = \Drupal::entityTypeManager()->getStorage('node_type')->create([
+      'type' => 'scenario',
+      'name' => 'Scenario',
+      'description' => 'ocBot scenario content type',
     ]);
-    $node_type->save();
-  }
-
-  // Create Paragraphs Types
-  $paragraph_types = [
-    'scenario_step' => 'Scenario Step',
-    'equipment_item' => 'Equipment Item',
-  ];
-
-  foreach ($paragraph_types as $id => $name) {
-    if (!ParagraphsType::load($id)) {
-      $paragraph_type = ParagraphsType::create([
-        'id' => $id,
-        'label' => $name,
-      ]);
-      $paragraph_type->save();
-    }
-  }
-
-  // Create Fields for Node Type
-  $node_fields = [
-    'field_description' => [
-      'type' => 'text_long',
-      'label' => 'Description',
-      'settings' => [],
-    ],
-    'field_equipment' => [
-      'type' => 'entity_reference_revisions',
-      'label' => 'Equipment',
-      'settings' => [
-        'target_type' => 'paragraph',
-        'handler_settings' => [
-          'target_bundles' => ['equipment_item' => 'equipment_item'],
-        ],
-      ],
-    ],
-    'field_step' => [
-      'type' => 'entity_reference_revisions',
-      'label' => 'Steps',
-      'settings' => [
-        'target_type' => 'paragraph',
-        'handler_settings' => [
-          'target_bundles' => ['scenario_step' => 'scenario_step'],
-        ],
-      ],
-    ],
-    'field_tags' => [
-      'type' => 'entity_reference',
-      'label' => 'Tags',
-      'settings' => [
-        'target_type' => 'taxonomy_term',
-        'handler_settings' => [
-          'target_bundles' => ['tags' => 'tags'],
-        ],
-      ],
-    ],
-    'field_image' => [
-      'type' => 'image',
-      'label' => 'Image',
-      'settings' => [
-        'file_extensions' => 'png jpg jpeg',
-      ],
-    ],
-  ];
-
-  foreach ($node_fields as $field_name => $config) {
-    // Create field storage if not exists
-    if (!FieldStorageConfig::loadByName('node', $field_name)) {
-      FieldStorageConfig::create([
-        'field_name' => $field_name,
-        'entity_type' => 'node',
-        'type' => $config['type'],
-        'settings' => $config['settings'] ?? [],
-        'cardinality' => -1,
-      ])->save();
-    }
-
-    // Create field instance if not exists
-    if (!FieldConfig::loadByName('node', 'ocbot_scenario', $field_name)) {
-      FieldConfig::create([
-        'field_name' => $field_name,
-        'entity_type' => 'node',
-        'bundle' => 'ocbot_scenario',
-        'label' => $config['label'],
-        'settings' => $config['settings'] ?? [],
-      ])->save();
-    }
+    $type->save();
+    
+    // Add default fields
+    _ocbot_scenario_create_default_fields();
+    
+    \Drupal::messenger()->addStatus(t('Scenario content type and fields created.'));
   }
 }
 
 /**
- * Implements hook_uninstall().
+ * Creates default fields for scenario content type.
  */
-function ocbot_scenario_uninstall() {
-  // Delete fields
+function _ocbot_scenario_create_default_fields() {
   $fields = [
-    'field_description',
-    'field_equipment',
-    'field_step',
-    'field_tags',
-    'field_image',
+    'field_scenario_active' => [
+      'type' => 'boolean',
+      'label' => 'Active',
+      'settings' => ['on_label' => 'Yes', 'off_label' => 'No'],
+    ],
+    'field_scenario_commands' => [
+      'type' => 'text_long',
+      'label' => 'Commands',
+    ],
+    // Додайте інші поля з вашої config/install директорії
   ];
 
-  foreach ($fields as $field_name) {
-    $field = FieldConfig::loadByName('node', 'ocbot_scenario', $field_name);
-    if ($field) {
-      $field->delete();
-    }
-    
-    $storage = FieldStorageConfig::loadByName('node', $field_name);
-    if ($storage) {
-      $storage->delete();
-    }
-  }
+  foreach ($fields as $field_name => $config) {
+    // Create field storage
+    FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'node',
+      'type' => $config['type'],
+      'cardinality' => -1,
+    ])->save();
 
-  // Delete content type
-  $node_type = NodeType::load('ocbot_scenario');
-  if ($node_type) {
-    $node_type->delete();
-  }
-
-  // Delete paragraph types
-  $paragraph_types = ['scenario_step', 'equipment_item'];
-  foreach ($paragraph_types as $type) {
-    $paragraph_type = \Drupal\paragraphs\Entity\ParagraphsType::load($type);
-    if ($paragraph_type) {
-      $paragraph_type->delete();
-    }
+    // Create field instance
+    FieldConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'node',
+      'bundle' => 'scenario',
+      'label' => $config['label'],
+      'settings' => $config['settings'] ?? [],
+    ])->save();
   }
 }
