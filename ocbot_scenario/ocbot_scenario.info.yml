@@ -1,33 +1,11 @@
-name: 'oCBot Scenario'
+name: 'ocBot Scenario'
 type: module
-description: 'Provides scenario for oCBot.'
-package: 'oCBot'
-core_version_requirement: ^8 || ^9 || ^10
+description: 'Provides Scenario functionality for ocBot.'
+package: 'ocBot'
+core_version_requirement: ^10
 dependencies:
-  - drupal:content_moderation
-  - drupal:datetime
-  - drupal:field
-  - drupal:link
   - drupal:node
-  - drupal:options
+  - drupal:field
   - drupal:text
+  - drupal:options
   - drupal:user
-  - drupal:workflows
-  - drupal:path
-  - drupal:views
-  - drupal:system
-  - drupal:menu_ui
-  - drupal:block
-  - drupal:telephone
-  - drupal:image
-  - drupal:file
-  - drupal:media
-  - drupal:media_library
-  - drupal:locale
-  - paragraphs:paragraphs
-  - entity_reference_revisions:entity_reference_revisions
-  - token:token
-  - ctools:ctools
-  - views_bulk_operations:views_bulk_operations
-  - webform:webform
-  - webform:webform_ui
