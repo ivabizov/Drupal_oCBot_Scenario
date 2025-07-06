@@ -1,93 +1,148 @@
 <?php
 
-/**
- * @file
- * Install, update and uninstall functions for the ocbot_scenario module.
- */
-
-use Drupal\ocbot_scenario\Install\ContentTypeInstaller;
-use Drupal\ocbot_scenario\Install\FieldInstaller;
-use Drupal\ocbot_scenario\Install\FormDisplayInstaller;
-use Drupal\ocbot_scenario\Install\ParagraphsInstaller;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\node\Entity\NodeType;
+use Drupal\paragraphs\Entity\ParagraphsType;
 
 /**
  * Implements hook_install().
  */
 function ocbot_scenario_install() {
-  // 1. Create content type
-  \Drupal::logger('ocbot_scenario')->notice('Creating content type...');
-  ContentTypeInstaller::install();
-
-  // 2. Create paragraphs
-  \Drupal::logger('ocbot_scenario')->notice('Creating paragraphs...');
-  ParagraphsInstaller::install();
-
-  // 3. Add fields with dependency check
-  \Drupal::logger('ocbot_scenario')->notice('Adding fields...');
-  FieldInstaller::install();
-
-  // 4. Force form display configuration
-  \Drupal::logger('ocbot_scenario')->notice('Configuring form display...');
-  
-  // Clear any existing form display configuration
-  try {
-    $config = \Drupal::entityTypeManager()->getStorage('entity_form_display')->load('node.ocbot_scenario.default');
-    if ($config) {
-      $config->delete();
-    }
-  } catch (\Exception $e) {
-    \Drupal::logger('ocbot_scenario')->error('Error deleting old form display: @error', ['@error' => $e->getMessage()]);
+  // Create Node Type
+  if (!NodeType::load('ocbot_scenario')) {
+    $node_type = NodeType::create([
+      'type' => 'ocbot_scenario',
+      'name' => 'OCBot Scenario',
+      'description' => 'Scenario for oCBot system',
+    ]);
+    $node_type->save();
   }
 
-  // Create new form display
-  FormDisplayInstaller::setupFormDisplay('ocbot_scenario');
+  // Create Paragraphs Types
+  $paragraph_types = [
+    'scenario_step' => 'Scenario Step',
+    'equipment_item' => 'Equipment Item',
+  ];
 
-  // 5. Final cache clear
-  \Drupal::logger('ocbot_scenario')->notice('Flushing caches...');
-  drupal_flush_all_caches();
+  foreach ($paragraph_types as $id => $name) {
+    if (!ParagraphsType::load($id)) {
+      $paragraph_type = ParagraphsType::create([
+        'id' => $id,
+        'label' => $name,
+      ]);
+      $paragraph_type->save();
+    }
+  }
 
-  \Drupal::logger('ocbot_scenario')->notice('Installation completed successfully.');
+  // Create Fields for Node Type
+  $node_fields = [
+    'field_description' => [
+      'type' => 'text_long',
+      'label' => 'Description',
+      'settings' => [],
+    ],
+    'field_equipment' => [
+      'type' => 'entity_reference_revisions',
+      'label' => 'Equipment',
+      'settings' => [
+        'target_type' => 'paragraph',
+        'handler_settings' => [
+          'target_bundles' => ['equipment_item' => 'equipment_item'],
+        ],
+      ],
+    ],
+    'field_step' => [
+      'type' => 'entity_reference_revisions',
+      'label' => 'Steps',
+      'settings' => [
+        'target_type' => 'paragraph',
+        'handler_settings' => [
+          'target_bundles' => ['scenario_step' => 'scenario_step'],
+        ],
+      ],
+    ],
+    'field_tags' => [
+      'type' => 'entity_reference',
+      'label' => 'Tags',
+      'settings' => [
+        'target_type' => 'taxonomy_term',
+        'handler_settings' => [
+          'target_bundles' => ['tags' => 'tags'],
+        ],
+      ],
+    ],
+    'field_image' => [
+      'type' => 'image',
+      'label' => 'Image',
+      'settings' => [
+        'file_extensions' => 'png jpg jpeg',
+      ],
+    ],
+  ];
+
+  foreach ($node_fields as $field_name => $config) {
+    // Create field storage if not exists
+    if (!FieldStorageConfig::loadByName('node', $field_name)) {
+      FieldStorageConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => 'node',
+        'type' => $config['type'],
+        'settings' => $config['settings'] ?? [],
+        'cardinality' => -1,
+      ])->save();
+    }
+
+    // Create field instance if not exists
+    if (!FieldConfig::loadByName('node', 'ocbot_scenario', $field_name)) {
+      FieldConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => 'node',
+        'bundle' => 'ocbot_scenario',
+        'label' => $config['label'],
+        'settings' => $config['settings'] ?? [],
+      ])->save();
+    }
+  }
 }
 
 /**
  * Implements hook_uninstall().
  */
 function ocbot_scenario_uninstall() {
-  // Clean up configurations
-  \Drupal::configFactory()->getEditable('core.entity_form_display.node.ocbot_scenario.default')->delete();
-  
-  // Clear field definitions cache
-  \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
-  
-  drupal_flush_all_caches();
-}
+  // Delete fields
+  $fields = [
+    'field_description',
+    'field_equipment',
+    'field_step',
+    'field_tags',
+    'field_image',
+  ];
 
-/**
- * Implements hook_requirements().
- */
-function ocbot_scenario_requirements($phase) {
-  $requirements = [];
-  
-  if ($phase == 'install') {
-    // Check if required modules are enabled
-    $required_modules = [
-      'node',
-      'field',
-      'text',
-      'options',
-      'paragraphs'
-    ];
+  foreach ($fields as $field_name) {
+    $field = FieldConfig::loadByName('node', 'ocbot_scenario', $field_name);
+    if ($field) {
+      $field->delete();
+    }
     
-    foreach ($required_modules as $module) {
-      if (!\Drupal::moduleHandler()->moduleExists($module)) {
-        $requirements["ocbot_scenario_$module"] = [
-          'title' => t('Dependency missing'),
-          'value' => t('@module module is required', ['@module' => $module]),
-          'severity' => REQUIREMENT_ERROR,
-        ];
-      }
+    $storage = FieldStorageConfig::loadByName('node', $field_name);
+    if ($storage) {
+      $storage->delete();
     }
   }
-  
-  return $requirements;
+
+  // Delete content type
+  $node_type = NodeType::load('ocbot_scenario');
+  if ($node_type) {
+    $node_type->delete();
+  }
+
+  // Delete paragraph types
+  $paragraph_types = ['scenario_step', 'equipment_item'];
+  foreach ($paragraph_types as $type) {
+    $paragraph_type = \Drupal\paragraphs\Entity\ParagraphsType::load($type);
+    if ($paragraph_type) {
+      $paragraph_type->delete();
+    }
+  }
 }
