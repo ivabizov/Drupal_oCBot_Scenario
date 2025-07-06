@@ -63,3 +63,53 @@ function _ocbot_scenario_create_default_fields() {
     ])->save();
   }
 }
+function ocbot_scenario_install() {
+  // Створення типу вмісту "Scenario"
+  _ocbot_scenario_create_content_type('scenario', 'Scenario', 'Сценарії автоматизації');
+  
+  // Створення типу вмісту "Controller"
+  _ocbot_scenario_create_content_type('controller', 'Controller', 'Контролери та їх інтерфейси');
+  
+  // Додаткові налаштування
+  _ocbot_scenario_setup_common_fields();
+}
+
+function _ocbot_scenario_create_content_type($type, $name, $description) {
+  if (!\Drupal::entityTypeManager()->getStorage('node_type')->load($type)) {
+    $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->create([
+      'type' => $type,
+      'name' => $name,
+      'description' => $description,
+      'custom' => TRUE,
+      'langcode' => 'uk',
+    ]);
+    $node_type->save();
+    
+    // Додаємо стандартні поля
+    node_add_body_field($node_type);
+  }
+}
+
+function _ocbot_scenario_setup_common_fields() {
+  $common_fields = [
+    'field_status' => [
+      'type' => 'boolean',
+      'label' => 'Active status',
+      'settings' => ['on_label' => 'Active', 'off_label' => 'Inactive'],
+    ],
+    'field_tags' => [
+      'type' => 'entity_reference',
+      'label' => 'Tags',
+      'settings' => ['target_type' => 'taxonomy_term'],
+    ],
+  ];
+  
+  // Створення спільних полів для всіх типів вмісту
+  foreach ($common_fields as $field_name => $config) {
+    FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'node',
+      'type' => $config['type'],
+    ])->save();
+  }
+}
