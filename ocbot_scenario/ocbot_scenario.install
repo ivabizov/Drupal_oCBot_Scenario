@@ -8,6 +8,7 @@ use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\Core\Entity\EntityStorageException;
 
+
 /**
  * Implements hook_install().
  *
@@ -23,6 +24,8 @@ function ocbot_scenario_install() {
   
   // 3. Create common fields
   _ocbot_scenario_setup_common_fields();
+
+    // Додаткові дії при встановленні
 
   \Drupal::messenger()->addStatus(t('Scenario content types and fields successfully created.'));
 }

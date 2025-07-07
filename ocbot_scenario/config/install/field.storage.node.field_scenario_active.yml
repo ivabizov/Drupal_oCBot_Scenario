@@ -1,0 +1,16 @@
+langcode: uk
+status: true
+dependencies:
+  module:
+    - options
+    - node
+id: node.field_scenario_active
+field_name: field_scenario_active
+entity_type: node
+type: boolean
+settings:
+  on_label: 'Так'
+  off_label: 'Ні'
+module: options
+cardinality: 1
+translatable: true

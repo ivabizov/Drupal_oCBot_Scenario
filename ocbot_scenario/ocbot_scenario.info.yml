@@ -1,11 +1,12 @@
 name: 'ocBot Scenario'
 type: module
-description: 'Provides Scenario functionality for ocBot.'
+description: 'Provides Scenario content type with nested paragraphs structure'
 package: 'ocBot'
-core_version_requirement: ^10
+core_version_requirement: ^9 || ^10
 dependencies:
   - drupal:node
   - drupal:field
+  - drupal:paragraphs
+  - drupal:image
   - drupal:text
   - drupal:options
-  - drupal:user

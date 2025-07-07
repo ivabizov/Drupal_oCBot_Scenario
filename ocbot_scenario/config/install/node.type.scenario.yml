@@ -1,0 +1,14 @@
+langcode: uk
+status: true
+dependencies:
+  module:
+    - node
+    - paragraphs
+    - text
+name: 'Сценарій'
+type: scenario
+description: 'Сценарії автоматизації'
+help: ''
+new_revision: true
+preview_mode: 1
+display_submitted: false

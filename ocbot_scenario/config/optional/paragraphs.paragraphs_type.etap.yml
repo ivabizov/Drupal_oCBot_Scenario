@@ -1,0 +1,5 @@
+langcode: uk
+status: true
+id: etap
+label: 'Етап'
+description: 'Етап виконання сценарію'

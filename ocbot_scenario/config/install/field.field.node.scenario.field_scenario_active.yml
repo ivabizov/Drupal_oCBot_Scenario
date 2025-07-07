@@ -1,0 +1,18 @@
+langcode: uk
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_scenario_active
+    - node.type.scenario
+id: node.scenario.field_scenario_active
+field_name: field_scenario_active
+entity_type: node
+bundle: scenario
+label: 'Активний сценарій'
+description: 'Чи активний даний сценарій'
+required: true
+translatable: false
+default_value: {  }
+settings:
+  display_label: true
+field_type: boolean

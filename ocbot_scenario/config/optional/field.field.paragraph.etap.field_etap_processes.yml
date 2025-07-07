@@ -1,0 +1,20 @@
+langcode: uk
+status: true
+dependencies:
+  config:
+    - paragraphs.paragraphs_type.etap
+    - paragraphs.paragraphs_type.process
+id: paragraph.etap.field_etap_processes
+field_name: field_etap_processes
+entity_type: paragraph
+bundle: etap
+label: 'Процеси етапу'
+description: 'Список процесів цього етапу'
+required: false
+translatable: false
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      process: process
+field_type: entity_reference_revisions
