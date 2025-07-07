@@ -1,0 +1,8 @@
+langcode: en
+status: true
+dependencies: {  }
+id: etap
+label: 'Етап сценарію'
+icon_uuid: null
+description: 'Один крок у сценарії (наприклад, "Вітання", "Оплата").'
+behavior_plugins: {  }

@@ -1,0 +1,8 @@
+langcode: en
+status: true
+dependencies: {  }
+id: interface
+label: 'Інтерфейс'
+icon_uuid: null
+description: 'UI-елемент для взаємодії з користувачем (кнопка, форма, меню).'
+behavior_plugins: {  }

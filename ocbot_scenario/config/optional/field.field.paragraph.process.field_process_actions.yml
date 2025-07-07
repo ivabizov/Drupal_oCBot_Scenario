@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_process_actions
+    - paragraphs.paragraphs_type.action
+    - paragraphs.paragraphs_type.process
+id: paragraph.process.field_process_actions
+field_name: field_process_actions
+entity_type: paragraph
+bundle: process
+label: 'Дії'
+description: 'Список дій у процесі (наприклад, "Відправити SMS").'
+required: false
+translatable: false
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      action: action
+    auto_create: true
+    auto_create_bundle: 'action'

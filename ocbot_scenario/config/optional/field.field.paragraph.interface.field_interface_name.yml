@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_interface_name
+    - paragraphs.paragraphs_type.interface
+id: paragraph.interface.field_interface_name
+field_name: field_interface_name
+entity_type: paragraph
+bundle: interface
+label: 'Назва інтерфейсу'
+required: true
+translatable: false
+default_value: {  }
+settings:
+  max_length: 255
+  placeholder: ''
+field_type: string

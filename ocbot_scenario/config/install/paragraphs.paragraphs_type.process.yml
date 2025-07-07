@@ -1,0 +1,8 @@
+langcode: en
+status: true
+dependencies: {  }
+id: process
+label: 'Процес'
+icon_uuid: null
+description: 'Логічний блок дій (наприклад, "Перевірка даних").'
+behavior_plugins: {  }

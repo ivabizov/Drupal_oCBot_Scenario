@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_interface_type
+    - paragraphs.paragraphs_type.interface
+id: paragraph.interface.field_interface_type
+field_name: field_interface_type
+entity_type: paragraph
+bundle: interface
+label: 'Тип інтерфейсу'
+required: true
+translatable: false
+default_value: {  }
+settings:
+  allowed_values:
+    button: 'Кнопка'
+    form: 'Форма'
+    menu: 'Меню'
+    input: 'Поле вводу'
+field_type: list_string

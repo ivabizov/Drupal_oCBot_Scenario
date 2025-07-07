@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_action_interfaces
+    - paragraphs.paragraphs_type.action
+    - paragraphs.paragraphs_type.interface
+id: paragraph.action.field_action_interfaces
+field_name: field_action_interfaces
+entity_type: paragraph
+bundle: action
+label: 'Інтерфейси'
+description: 'UI-елементи, пов’язані з цією дією (наприклад, кнопки, форми).'
+required: false
+translatable: false
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      interface: interface
+    auto_create: true
+    auto_create_bundle: 'interface'

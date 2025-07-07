@@ -10,3 +10,6 @@ dependencies:
   - drupal:image
   - drupal:text
   - drupal:options
+  - drupal:content_moderation
+  - paragraphs:paragraphs
+  - entity_reference_revisions:entity_reference_revisions

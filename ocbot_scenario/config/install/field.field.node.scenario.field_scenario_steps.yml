@@ -1,0 +1,25 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_scenario_steps
+    - node.type.scenario
+    - paragraphs.paragraphs_type.etap
+id: node.scenario.field_scenario_steps
+field_name: field_scenario_steps
+entity_type: node
+bundle: scenario
+label: 'Steps (Paragraphs)'
+description: 'Додайте етапи сценарію через Paragraphs типу "etap".'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      etap: etap
+    auto_create: true
+    auto_create_bundle: 'etap'
+field_type: entity_reference_revisions

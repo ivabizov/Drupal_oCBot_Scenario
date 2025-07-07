@@ -1,13 +1,11 @@
-langcode: uk
+langcode: en
 status: true
 dependencies:
   module:
     - node
-    - paragraphs
-    - text
-name: 'Сценарій'
+name: 'Scenario'
 type: scenario
-description: 'Сценарії автоматизації'
+description: 'Сценарії для чат-бота з кроковими процесами'
 help: ''
 new_revision: true
 preview_mode: 1

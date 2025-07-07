@@ -1,0 +1,8 @@
+langcode: en
+status: true
+dependencies: {  }
+id: action
+label: 'Дія'
+icon_uuid: null
+description: 'Окрема дія у процесі (наприклад, "Відправити повідомлення", "Зробити API-запит").'
+behavior_plugins: {  }

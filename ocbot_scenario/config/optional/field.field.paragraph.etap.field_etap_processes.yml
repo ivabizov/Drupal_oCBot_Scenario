@@ -1,15 +1,16 @@
-langcode: uk
+langcode: en
 status: true
 dependencies:
   config:
+    - field.storage.paragraph.field_etap_processes
     - paragraphs.paragraphs_type.etap
     - paragraphs.paragraphs_type.process
 id: paragraph.etap.field_etap_processes
 field_name: field_etap_processes
 entity_type: paragraph
 bundle: etap
-label: 'Процеси етапу'
-description: 'Список процесів цього етапу'
+label: 'Процеси'
+description: 'Додайте процеси, які належать до цього етапу.'
 required: false
 translatable: false
 settings:
@@ -17,4 +18,5 @@ settings:
   handler_settings:
     target_bundles:
       process: process
-field_type: entity_reference_revisions
+    auto_create: true
+    auto_create_bundle: 'process'

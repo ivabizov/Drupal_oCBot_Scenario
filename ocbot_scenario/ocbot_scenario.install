@@ -7,6 +7,7 @@
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\Core\Entity\EntityStorageException;
+use Drupal\Core\Database\Database;
 
 
 /**
@@ -15,6 +16,10 @@ use Drupal\Core\Entity\EntityStorageException;
  * Creates necessary content types and fields during module installation.
  */
 function ocbot_scenario_install() {
+  
+  // Автоматично встановити залежні модулі.
+  \Drupal::service('module_installer')->install(['paragraphs']);
+  
   // 1. Create content types
   _ocbot_scenario_create_content_type('scenario', t('Scenario'), t('ocBot scenario content type'));
   _ocbot_scenario_create_content_type('controller', t('Controller'), t('Контролери та їх інтерфейси'));
@@ -204,6 +209,9 @@ function _ocbot_scenario_create_fields(array $fields, $bundle = NULL) {
  * Clean up module entities on uninstall.
  */
 function ocbot_scenario_uninstall() {
+  // Видалити створені дані при деінсталяції.
+  \Drupal::configFactory()->getEditable('field.field.node.scenario.field_scenario_steps')->delete();
+ 
   $fields_to_remove = [
     'field_scenario_active',
     'field_scenario_commands',
