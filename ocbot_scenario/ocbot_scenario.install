@@ -1,29 +1,65 @@
 <?php
 /**
  * @file
- * Install hooks for ocbot_scenario module.
+ * Install, update and uninstall hooks for ocBot Scenario module.
  */
 
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\field\Entity\FieldConfig;
+use Drupal\Core\Entity\EntityStorageException;
 
 /**
  * Implements hook_install().
+ *
+ * Creates necessary content types and fields during module installation.
  */
 function ocbot_scenario_install() {
-  // Create scenario content type if not exists
-  if (!\Drupal::entityTypeManager()->getStorage('node_type')->load('scenario')) {
-    $type = \Drupal::entityTypeManager()->getStorage('node_type')->create([
-      'type' => 'scenario',
-      'name' => 'Scenario',
-      'description' => 'ocBot scenario content type',
-    ]);
-    $type->save();
-    
-    // Add default fields
-    _ocbot_scenario_create_default_fields();
-    
-    \Drupal::messenger()->addStatus(t('Scenario content type and fields created.'));
+  // 1. Create content types
+  _ocbot_scenario_create_content_type('scenario', t('Scenario'), t('ocBot scenario content type'));
+  _ocbot_scenario_create_content_type('controller', t('Controller'), t('Контролери та їх інтерфейси'));
+
+  // 2. Create specialized fields for scenarios
+  _ocbot_scenario_create_default_fields();
+  
+  // 3. Create common fields
+  _ocbot_scenario_setup_common_fields();
+
+  \Drupal::messenger()->addStatus(t('Scenario content types and fields successfully created.'));
+}
+
+/**
+ * Creates a content type with basic configuration.
+ *
+ * @param string $type
+ *   Machine name of the content type
+ * @param string $name
+ *   Human-readable name
+ * @param string $description
+ *   Description of the content type
+ */
+function _ocbot_scenario_create_content_type($type, $name, $description) {
+  if (!\Drupal::entityTypeManager()->getStorage('node_type')->load($type)) {
+    try {
+      $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->create([
+        'type' => $type,
+        'name' => $name,
+        'description' => $description,
+        'langcode' => 'uk',
+        'new_revision' => TRUE,
+        'preview_mode' => DRUPAL_OPTIONAL,
+      ]);
+      $node_type->save();
+
+      // Add body field only for 'scenario' type
+      if ($type === 'scenario') {
+        node_add_body_field($node_type);
+      }
+    }
+    catch (EntityStorageException $e) {
+      \Drupal::logger('ocbot_scenario')->error('Content type creation error: @error', [
+        '@error' => $e->getMessage()
+      ]);
+    }
   }
 }
 
@@ -34,82 +70,171 @@ function _ocbot_scenario_create_default_fields() {
   $fields = [
     'field_scenario_active' => [
       'type' => 'boolean',
-      'label' => 'Active',
-      'settings' => ['on_label' => 'Yes', 'off_label' => 'No'],
+      'label' => t('Active Status'),
+      'description' => t('Indicates whether the scenario is active'),
+      'required' => TRUE,
+      'cardinality' => 1,
+      'settings' => [
+        'on_label' => t('Enabled'),
+        'off_label' => t('Disabled'),
+      ],
+      'form_display' => [
+        'type' => 'boolean_checkbox',
+        'weight' => 10,
+      ]
     ],
     'field_scenario_commands' => [
       'type' => 'text_long',
-      'label' => 'Commands',
+      'label' => t('Commands'),
+      'description' => t('List of commands for this scenario'),
+      'required' => FALSE,
+      'cardinality' => -1,
+      'settings' => [
+        'display_summary' => TRUE,
+      ],
+      'form_display' => [
+        'type' => 'text_textarea_with_summary',
+        'weight' => 20,
+      ]
     ],
-    // Додайте інші поля з вашої config/install директорії
   ];
 
-  foreach ($fields as $field_name => $config) {
-    // Create field storage
-    FieldStorageConfig::create([
-      'field_name' => $field_name,
-      'entity_type' => 'node',
-      'type' => $config['type'],
-      'cardinality' => -1,
-    ])->save();
-
-    // Create field instance
-    FieldConfig::create([
-      'field_name' => $field_name,
-      'entity_type' => 'node',
-      'bundle' => 'scenario',
-      'label' => $config['label'],
-      'settings' => $config['settings'] ?? [],
-    ])->save();
-  }
-}
-function ocbot_scenario_install() {
-  // Створення типу вмісту "Scenario"
-  _ocbot_scenario_create_content_type('scenario', 'Scenario', 'Сценарії автоматизації');
-  
-  // Створення типу вмісту "Controller"
-  _ocbot_scenario_create_content_type('controller', 'Controller', 'Контролери та їх інтерфейси');
-  
-  // Додаткові налаштування
-  _ocbot_scenario_setup_common_fields();
+  _ocbot_scenario_create_fields($fields, 'scenario');
 }
 
-function _ocbot_scenario_create_content_type($type, $name, $description) {
-  if (!\Drupal::entityTypeManager()->getStorage('node_type')->load($type)) {
-    $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->create([
-      'type' => $type,
-      'name' => $name,
-      'description' => $description,
-      'custom' => TRUE,
-      'langcode' => 'uk',
-    ]);
-    $node_type->save();
-    
-    // Додаємо стандартні поля
-    node_add_body_field($node_type);
-  }
-}
-
+/**
+ * Creates common fields for all content types.
+ */
 function _ocbot_scenario_setup_common_fields() {
   $common_fields = [
     'field_status' => [
       'type' => 'boolean',
-      'label' => 'Active status',
-      'settings' => ['on_label' => 'Active', 'off_label' => 'Inactive'],
+      'label' => t('Status'),
+      'description' => t('Global activity status'),
+      'settings' => [
+        'on_label' => t('Active'),
+        'off_label' => t('Inactive'),
+      ],
     ],
     'field_tags' => [
       'type' => 'entity_reference',
-      'label' => 'Tags',
-      'settings' => ['target_type' => 'taxonomy_term'],
+      'label' => t('Tags'),
+      'description' => t('Related tags'),
+      'settings' => [
+        'target_type' => 'taxonomy_term',
+        'handler' => 'default:taxonomy_term',
+        'handler_settings' => [
+          'target_bundles' => ['tags' => 'tags'],
+        ],
+      ],
     ],
   ];
-  
-  // Створення спільних полів для всіх типів вмісту
-  foreach ($common_fields as $field_name => $config) {
-    FieldStorageConfig::create([
-      'field_name' => $field_name,
-      'entity_type' => 'node',
-      'type' => $config['type'],
-    ])->save();
+
+  _ocbot_scenario_create_fields($common_fields);
+}
+
+/**
+ * Helper function to create fields with proper validation.
+ *
+ * @param array $fields
+ *   Array of field definitions
+ * @param string|null $bundle
+ *   Bundle name if creating field instances
+ */
+function _ocbot_scenario_create_fields(array $fields, $bundle = NULL) {
+  foreach ($fields as $field_name => $config) {
+    try {
+      // Create field storage if not exists
+      if (!FieldStorageConfig::loadByName('node', $field_name)) {
+        FieldStorageConfig::create([
+          'field_name' => $field_name,
+          'entity_type' => 'node',
+          'type' => $config['type'],
+          'cardinality' => $config['cardinality'] ?? 1,
+          'locked' => TRUE,
+        ])->save();
+      }
+
+      // Create field instance if bundle specified
+      if ($bundle && !FieldConfig::loadByName('node', $bundle, $field_name)) {
+        $field_config = FieldConfig::create([
+          'field_name' => $field_name,
+          'entity_type' => 'node',
+          'bundle' => $bundle,
+          'label' => $config['label'],
+          'description' => $config['description'] ?? '',
+          'required' => $config['required'] ?? FALSE,
+          'settings' => $config['settings'] ?? [],
+        ]);
+
+        if ($config['type'] === 'entity_reference') {
+          $field_config->setSetting('target_type', $config['settings']['target_type'] ?? 'node');
+        }
+
+        $field_config->save();
+
+        // Configure form display
+        if (isset($config['form_display'])) {
+          if ($form_display = \Drupal::entityTypeManager()
+            ->getStorage('entity_form_display')
+            ->load("node.{$bundle}.default")) {
+            $form_display->setComponent($field_name, [
+              'type' => $config['form_display']['type'],
+              'weight' => $config['form_display']['weight'] ?? 0,
+            ])->save();
+          }
+        }
+      }
+    }
+    catch (\Exception $e) {
+      \Drupal::logger('ocbot_scenario')->error('Field @field creation error: @error', [
+        '@field' => $field_name,
+        '@error' => $e->getMessage()
+      ]);
+    }
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ *
+ * Clean up module entities on uninstall.
+ */
+function ocbot_scenario_uninstall() {
+  $fields_to_remove = [
+    'field_scenario_active',
+    'field_scenario_commands',
+    'field_status',
+    'field_tags',
+  ];
+
+  foreach ($fields_to_remove as $field_name) {
+    if ($storage = FieldStorageConfig::loadByName('node', $field_name)) {
+      try {
+        $storage->delete();
+      }
+      catch (\Exception $e) {
+        \Drupal::logger('ocbot_scenario')->error('Field @field deletion error: @error', [
+          '@field' => $field_name,
+          '@error' => $e->getMessage()
+        ]);
+      }
+    }
+  }
+
+  // Remove content types
+  $content_types = ['scenario', 'controller'];
+  foreach ($content_types as $type) {
+    if ($node_type = \Drupal::entityTypeManager()->getStorage('node_type')->load($type)) {
+      try {
+        $node_type->delete();
+      }
+      catch (EntityStorageException $e) {
+        \Drupal::logger('ocbot_scenario')->error('Content type @type deletion error: @error', [
+          '@type' => $type,
+          '@error' => $e->getMessage()
+        ]);
+      }
+    }
   }
 }
