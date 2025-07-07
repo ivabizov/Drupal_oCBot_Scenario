@@ -1,7 +1,15 @@
-ocbot_scenario.controller:
-  path: '/admin/scenario'
+ocbot_scenario.list:
+  path: '/admin/scenarios'
   defaults:
-    _controller: '\Drupal\ocbot_scenario\Controller\ScenarioController::overview'
-    _title: 'Scenarios Overview'
+    _controller: '\Drupal\ocbot_scenario\Controller\ScenarioController::list'
+    _title: 'Scenarios'
   requirements:
-    _permission: 'administer scenarios'
+    _permission: 'access content'
+
+ocbot_scenario.settings:
+  path: '/admin/config/ocbot_scenario'
+  defaults:
+    _form: '\Drupal\ocbot_scenario\Form\ScenarioSettingsForm'
+    _title: 'oCBot Scenario Settings'
+  requirements:
+    _permission: 'administer site configuration'

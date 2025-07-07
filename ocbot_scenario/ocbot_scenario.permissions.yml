@@ -1,0 +1,3 @@
+administer ocbot scenario:
+  title: 'Administer oCBot Scenario'
+  description: 'Access to manage scenario settings.'

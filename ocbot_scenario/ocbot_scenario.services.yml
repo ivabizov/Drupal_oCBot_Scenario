@@ -1,0 +1,4 @@
+services:
+  ocbot_scenario.scenario_manager:
+    class: Drupal\ocbot_scenario\Service\ScenarioManager
+    arguments: ['@entity_type.manager']
